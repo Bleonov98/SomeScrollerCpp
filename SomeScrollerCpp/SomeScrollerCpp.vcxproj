@@ -153,6 +153,9 @@
   <ItemGroup>
     <ResourceCompile Include="SomeScrollerCpp.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\ScrlArea.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

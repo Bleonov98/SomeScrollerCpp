@@ -137,9 +137,9 @@ protected:
 
     void DrawChanges();
 
-    void DrawLevel();
+    //void DrawLevel();
 
-    void Collision(Player* player);
+    //void Collision(Player* player);
 
 public:
 

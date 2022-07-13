@@ -65,7 +65,7 @@ void Game::CreateWorld() {
 	printf(CSI "?25l"); // hide cursor blinking
 
 	DrawArea();
-	DrawLevel();
+	//DrawLevel();
 }
 
 void Game::DrawEndInfo(bool& restart)
