@@ -44,7 +44,7 @@ void Game::DrawArea()
 
 				if (0 != dwResourceSize)
 				{
-					for (int i = 0; i < strnlen(area, 9000); i++) {
+					for (int i = 0; i < strnlen(area, 56320); i++) {
 						cout << area[i];
 					}
 				}
@@ -197,7 +197,7 @@ void Game::RunWorld(bool& restart)
 	thread hotKeys([&]
 		{ HotKeys(pause); }
 	);
-
+	
 	int tick = 0;
 
 	while (worldIsRun) {
@@ -225,6 +225,8 @@ void Game::RunWorld(bool& restart)
 		//DrawInfo(player);
 
 		Sleep(60);
+
+		term.ScrollWindow();
 
 		tick++;
 	}

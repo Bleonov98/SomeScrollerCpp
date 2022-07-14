@@ -23,7 +23,11 @@ private:
 
         CONSOLE_SCREEN_BUFFER_INFO csbi;
 
+        _SMALL_RECT Rect;
+
         HWND hWindowConsole = GetForegroundWindow();
+
+        int Width = 90, Height = 56, err = 30;
 
         bool Terminal() {
 
@@ -76,8 +80,6 @@ private:
         }
 
         void SetScreenSize() {
-            int Width = 120, Height = 56, err = 30;
-
             COORD monitorSize = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
             COORD bufferSize = { Width, Height };
 
@@ -97,7 +99,7 @@ private:
 
             SetWindowLong(hWindowConsole, GWL_STYLE, GetWindowLong(hWindowConsole, GWL_STYLE) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
 
-            SetConsoleTitleA("Space Invaders C++");
+            SetConsoleTitleA("ScrollerTypeGame C++");
         }
 
         void SetConsoleFont() {
@@ -113,6 +115,15 @@ private:
 
             wcscpy_s(cfi.FaceName, L"Lucida Console");
             SetCurrentConsoleFontEx(hOut, 0, &cfi);
+        }
+
+        void ScrollWindow() {
+            SMALL_RECT srctWindow;
+            
+            Rect.Top += 1;
+            Rect.Left += 1;
+
+            SetConsoleWindowInfo(hOut, TRUE, &Rect);
         }
     };
 
