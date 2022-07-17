@@ -8,7 +8,11 @@ private:
     wd wData;
 
     char16_t prevBuf[ROWS][COLS];
-    char coord[50];
+    char coord[100];
+
+    unsigned char areaBuf[ROWS][1025];
+    unsigned char activeAreaBuf[ROWS][COLS];
+    int scrollX = 920;
 
     bool worldIsRun = true, win = false;
 
@@ -27,7 +31,7 @@ private:
 
         HWND hWindowConsole = GetForegroundWindow();
 
-        int Width = 90, Height = 56, err = 30;
+        int Width = 90, Height = 51, err = 30;
 
         bool Terminal() {
 
@@ -116,16 +120,22 @@ private:
             wcscpy_s(cfi.FaceName, L"Lucida Console");
             SetCurrentConsoleFontEx(hOut, 0, &cfi);
         }
-
-        void ScrollWindow() {
-            SMALL_RECT srctWindow;
-            
-            Rect.Top += 1;
-            Rect.Left += 1;
-
-            SetConsoleWindowInfo(hOut, TRUE, &Rect);
-        }
     };
+    
+    void ScrollWindow() {
+
+        if (scrollX + COLS < 1023) scrollX++;
+        else return;
+
+        for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = scrollX; j < scrollX + COLS; j++)
+            {
+                SetPos(j, i + 1);
+                if (areaBuf[i][j] != ' ') cout << areaBuf[i][j];
+            }
+        }
+    }
 
     VirtualTerminal term; // console setting
 

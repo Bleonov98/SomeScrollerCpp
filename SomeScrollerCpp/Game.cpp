@@ -44,11 +44,26 @@ void Game::DrawArea()
 
 				if (0 != dwResourceSize)
 				{
-					for (int i = 0; i < strnlen(area, 56320); i++) {
-						cout << area[i];
+					int row = 0, col = 0;
+					for (int i = 0; i < strnlen(area, 1025*50); i++) {
+						areaBuf[row][col] = area[i];
+						if (i % 1025 == 0 && i > 0) {
+							row++;
+							col = 0;
+						}
+						col++;
 					}
 				}
 			}
+		}
+	}
+
+	for (int h = 0; h < ROWS; h++)
+	{
+		for (int w = 0; w < COLS; w++)
+		{
+			cout << areaBuf[h][w] << flush;
+			activeAreaBuf[h][w] = areaBuf[h][w];
 		}
 	}
 
@@ -199,6 +214,7 @@ void Game::RunWorld(bool& restart)
 	);
 	
 	int tick = 0;
+	int scrollSpeed = 1;
 
 	while (worldIsRun) {
 
@@ -224,10 +240,10 @@ void Game::RunWorld(bool& restart)
 
 		//DrawInfo(player);
 
-		Sleep(60);
+		//Sleep(60);
 
-		term.ScrollWindow();
-
+		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
+		
 		tick++;
 	}
 

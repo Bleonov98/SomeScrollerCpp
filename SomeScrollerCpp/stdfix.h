@@ -17,7 +17,7 @@
 
 #define ESC "\x1b"
 #define CSI "\x1b["
-#define ROWS 55
+#define ROWS 50
 #define COLS 90
 
 using namespace std;
