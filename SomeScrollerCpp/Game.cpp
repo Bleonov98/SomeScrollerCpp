@@ -46,7 +46,7 @@ void Game::DrawArea()
 				{
 					int row = 0, col = 0;
 					for (int i = 0; i < strnlen(area, 1025*50); i++) {
-						areaBuf[row][col] = area[i];
+						GameMap[row][col] = area[i];
 						if (i % 1025 == 0 && i > 0) {
 							row++;
 							col = 0;
@@ -62,8 +62,8 @@ void Game::DrawArea()
 	{
 		for (int w = 0; w < COLS; w++)
 		{
-			cout << areaBuf[h][w] << flush;
-			activeAreaBuf[h][w] = areaBuf[h][w];
+			cout << GameMap[h][w] << flush;
+			activeAreaBuf[h][w] = GameMap[h][w];
 		}
 	}
 
@@ -214,7 +214,7 @@ void Game::RunWorld(bool& restart)
 	);
 	
 	int tick = 0;
-	int scrollSpeed = 1;
+	int scrollSpeed = 2;
 
 	while (worldIsRun) {
 
@@ -240,7 +240,7 @@ void Game::RunWorld(bool& restart)
 
 		//DrawInfo(player);
 
-		//Sleep(60);
+		Sleep(60);
 
 		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 		

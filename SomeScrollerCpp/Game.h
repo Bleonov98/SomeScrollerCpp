@@ -10,9 +10,12 @@ private:
     char16_t prevBuf[ROWS][COLS];
     char coord[100];
 
-    unsigned char areaBuf[ROWS][1025];
+    unsigned char GameMap[ROWS][1025];
+
+    unsigned char prevActiveAreaBuf[ROWS][COLS];
     unsigned char activeAreaBuf[ROWS][COLS];
-    int scrollX = 920;
+
+    int scrollX = 0;
 
     bool worldIsRun = true, win = false;
 
@@ -124,17 +127,32 @@ private:
     
     void ScrollWindow() {
 
-        if (scrollX + COLS < 1023) scrollX++;
-        else return;
+        for (int i = 0; i < ROWS; i++)
+        {   
+            int activeX = 0;
+            for (int j = scrollX; j < scrollX + COLS; j++)
+            {
+                activeAreaBuf[i][activeX] = GameMap[i][j];
+                activeX++;
+            }
+        }
 
         for (int i = 0; i < ROWS; i++)
         {
-            for (int j = scrollX; j < scrollX + COLS; j++)
+            for (int j = 0; j < COLS; j++)
             {
-                SetPos(j, i + 1);
-                if (areaBuf[i][j] != ' ') cout << areaBuf[i][j];
+                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j]) 
+                {
+                    prevActiveAreaBuf[i][j] = activeAreaBuf[i][j];
+
+                    SetPos(j, i + 1);
+
+                    cout << prevActiveAreaBuf[i][j];
+                }
             }
         }
+
+        if (scrollX + COLS < 1023) scrollX++;
     }
 
     VirtualTerminal term; // console setting
