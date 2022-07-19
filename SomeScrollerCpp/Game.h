@@ -21,6 +21,10 @@ private:
 
     int score = 0;
 
+    vector<GameObject*> allObjectList;
+    vector<Bullet*> bulletList;
+    vector<Enemy*> enemyList;
+
     HINSTANCE hInstance;
 
     class VirtualTerminal {
@@ -141,6 +145,7 @@ private:
         {
             for (int j = 0; j < COLS; j++)
             {
+                if (i > 0 && i < ROWS - 1) continue;
                 if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j]) 
                 {
                     prevActiveAreaBuf[i][j] = activeAreaBuf[i][j];
@@ -175,6 +180,8 @@ protected:
     void DrawInfo(Player* player);
 
     void DrawChanges();
+
+    void SpawnEnemy(int x, int y);
 
     //void DrawLevel();
 

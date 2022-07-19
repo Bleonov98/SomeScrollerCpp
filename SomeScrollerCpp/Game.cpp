@@ -140,10 +140,10 @@ void Game::DrawChanges()
 					printf(CSI "22;31m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Green) {
-					printf(CSI "47;32m");
+					printf(CSI "22;32m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Blue) {
-					printf(CSI "47;34m");
+					printf(CSI "22;34m");
 				}
 				else if ((prevBuf[y][x] >> 8) == Yellow) {
 					printf(CSI "22;33m");
@@ -187,7 +187,14 @@ void Game::DrawChanges()
 
 void Game::DrawToMem()
 {
-	/*for (int i = 0; i < allObjectList.size(); i++)
+	for (int i = 0; i < bulletList.size(); i++)
+	{
+		if (bulletList[i]->IsObjectDelete()) {
+			bulletList.erase(bulletList.begin() + i);
+		}
+	}
+
+	for (int i = 0; i < allObjectList.size(); i++)
 	{
 		if (allObjectList[i]->IsObjectDelete()) {
 			wData.vBuf[allObjectList[i]->GetY()][allObjectList[i]->GetX()] = u' ';
@@ -198,7 +205,14 @@ void Game::DrawToMem()
 	for (int i = 0; i < allObjectList.size(); i++)
 	{
 		allObjectList[i]->DrawObject();
-	}*/
+	}
+}
+
+void Game::SpawnEnemy(int x, int y)
+{
+	Enemy* enemy = new Enemy(&wData, x, y, 1, Blue);
+	allObjectList.push_back(enemy);
+	enemyList.push_back(enemy);
 }
 
 void Game::RunWorld(bool& restart)
@@ -216,6 +230,11 @@ void Game::RunWorld(bool& restart)
 	int tick = 0;
 	int scrollSpeed = 2;
 
+	Player* player = new Player(&wData, 15, ROWS / 2, 1, Red);
+	allObjectList.push_back(player);
+
+	SpawnEnemy(COLS - 10, 3 + rand() % ROWS);
+
 	while (worldIsRun) {
 
 		if (pause) {
@@ -231,6 +250,30 @@ void Game::RunWorld(bool& restart)
 			cout << "      ";
 
 		}
+
+		player->MoveObject();
+		if (GetAsyncKeyState(VK_SPACE)) {
+			Bullet* bullet = new Bullet(&wData, player->GetX() + REGULAR_WIDTH - 1, player->GetY() + REGULAR_HEIGHT / 2, 1, Red);
+			bullet->SetOwner(PLAYER);
+			bulletList.push_back(bullet);
+			allObjectList.push_back(bullet);
+		}
+		if (!bulletList.empty()) {
+			for (int i = 0; i < bulletList.size(); i++)
+			{
+				bulletList[i]->MoveObject();
+			}
+		}
+
+		/*if (scrollX % 10 == 0 && scrollX > 0) {
+			SpawnEnemy(COLS - 10, 3 + rand() % ROWS);
+		}*/
+
+		for (int i = 0; i < enemyList.size(); i++)
+		{
+			enemyList[i]->MoveObject();
+		}
+
 
 		DrawToMem();
 

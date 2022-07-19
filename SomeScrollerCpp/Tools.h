@@ -26,6 +26,18 @@ enum direction {
 	UP,
 	RIGHT,
 	DOWN,
-	LEFT
+	LEFT,
+	STOP
+};
+
+enum bulletOwner {
+	PLAYER,
+	ENEMY
+};
+
+enum EnemyType {
+	SMALL,
+	REGULAR,
+	BOSS
 };
 

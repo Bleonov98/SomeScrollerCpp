@@ -1,15 +1,15 @@
 #pragma once
 #include "Tools.h"
 
-static const int SMALL_HEIGHT = 2;
+static const int SMALL_HEIGHT = 3;
 static const int SMALL_WIDTH = 3;
-static const int REGULAR_HEIGHT = 4;
+static const int REGULAR_HEIGHT = 3;
 static const int REGULAR_WIDTH = 5;
-static const int BOSS_ENEMY_HEIGHT = 6;
-static const int BOSS_ENEMY_WIDTH = 7;
+static const int BOSS_HEIGHT = 14;
+static const int BOSS_WIDTH = 15;
 
-static const int DIRECTION = 4;
 static const int ANIMATION = 2;
+
 
 class GameObject
 {
@@ -31,6 +31,8 @@ public:
 
 	virtual void EraseObject() = 0;
 
+	virtual void MoveObject() = 0;
+
 	void DeleteObject();
 
 	bool IsObjectDelete();
@@ -48,6 +50,30 @@ protected:
 
 class Player : public GameObject
 {
+public:
+	Player(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
+
+	}
+
+	void DrawObject() override;
+
+	void EraseObject() override;
+
+	void MoveObject() override;
+
+	void Death(bool& worldIsRun);
+
+private:
+
+	void ChangeDir();
+
+	int _lifes = 3;
+
+	char16_t playerSprite[REGULAR_HEIGHT][REGULAR_WIDTH]{
+		u"==  ",
+		u"---@",
+		u"==  ",
+	};
 
 };
 
@@ -55,6 +81,47 @@ class Player : public GameObject
 
 class Enemy : public GameObject
 {
+public:
+	Enemy(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {}
+
+	void DrawObject() override;
+
+	void EraseObject() override;
+
+	void MoveObject() override;
+
+	void Hit(int score);
+
+private:
+
+	char16_t smallEnemy[SMALL_HEIGHT][SMALL_WIDTH]{
+		u" -",
+		u"0-",
+		u" -"
+	};
+	char16_t regularEnemy[REGULAR_HEIGHT][REGULAR_WIDTH]{
+		u"  --",
+		u"0---",
+		u"  --"
+	};
+	char16_t bossEnemy[BOSS_HEIGHT][BOSS_WIDTH]{
+		u"",
+		u"",
+		u"",
+		u"",
+		u"",
+		u"",
+		u"",
+		u"",
+		u"",
+		u"", 
+		u"",
+		u"",
+		u"",
+		u""
+	};
+
+	int _type = SMALL, _lifes = 1;
 
 };
 
@@ -62,6 +129,26 @@ class Enemy : public GameObject
 
 class Bullet : public GameObject
 {
+public:
+	Bullet(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {}
+	
+	void DrawObject() override;
+
+	void EraseObject() override;
+
+
+	bool GetOwner();
+
+	void SetOwner(int owner);
+
+
+	void MoveObject() override;
+
+private:
+
+	bool enemyShot = false, playerShot = false;
+
+	int _owner;
 
 };
 
