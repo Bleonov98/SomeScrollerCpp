@@ -10,6 +10,11 @@ int GameObject::GetY()
 	return _y;
 }
 
+int GameObject::GetSpeed()
+{
+	return _speed;
+}
+
 void GameObject::SetX(int x)
 {
 	_x = x;
@@ -60,17 +65,21 @@ void Player::MoveObject()
 
 	ChangeDir();
 
+	if (_direction == STOP) {
+		return;
+	}
+
 	if (_direction == UP) {
-		_y -= _speed;
+		_y--;
 	}
 	else if (_direction == DOWN) {
-		_y += _speed;
+		_y++;
 	}
 	else if (_direction == RIGHT) {
-		_x += _speed;
+		_x++;
 	}
 	else if (_direction == LEFT) {
-		_x -= _speed;
+		_x--;
 	}
 }
 
@@ -120,13 +129,15 @@ void Bullet::MoveObject()
 	if (_direction == RIGHT) _x++;
 	else if (_direction == LEFT) _x--;
 
-	if (_x >= COLS) {
+	if (_x >= COLS || _x <= 2) {
 		DeleteObject();
 	}
 }
 
 void Bullet::SetOwner(int owner)
 {
+	_owner = owner;
+
 	if (_owner == PLAYER) {
 		playerShot = true;
 		_direction = RIGHT;

@@ -5,7 +5,7 @@ static const int SMALL_HEIGHT = 3;
 static const int SMALL_WIDTH = 3;
 static const int REGULAR_HEIGHT = 3;
 static const int REGULAR_WIDTH = 5;
-static const int BOSS_HEIGHT = 14;
+static const int BOSS_HEIGHT = 13;
 static const int BOSS_WIDTH = 15;
 
 static const int ANIMATION = 2;
@@ -22,6 +22,8 @@ public:
 	int GetX();
 
 	int GetY();
+
+	int GetSpeed();
 
 	void SetX(int x);
 
@@ -105,20 +107,19 @@ private:
 		u"  --"
 	};
 	char16_t bossEnemy[BOSS_HEIGHT][BOSS_WIDTH]{
-		u"",
-		u"",
-		u"",
-		u"",
-		u"",
-		u"",
-		u"",
-		u"",
-		u"",
-		u"", 
-		u"",
-		u"",
-		u"",
-		u""
+		u"        --@   ",
+		u" @--------@---",
+		u" @--------@---",
+		u"        --@---",
+		u"        --@---",
+		u"@----@----@---",
+		u"@----#----#---",
+		u"@----@----@---",
+		u"        --@---",
+		u"        --@---", 
+		u" @--------@---",
+		u" @--------@---",
+		u"        --@   ",
 	};
 
 	int _type = SMALL, _lifes = 1;

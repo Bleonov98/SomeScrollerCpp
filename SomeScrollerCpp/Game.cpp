@@ -210,7 +210,7 @@ void Game::DrawToMem()
 
 void Game::SpawnEnemy(int x, int y)
 {
-	Enemy* enemy = new Enemy(&wData, x, y, 1, Blue);
+	Enemy* enemy = new Enemy(&wData, x, y, 2, Blue);
 	allObjectList.push_back(enemy);
 	enemyList.push_back(enemy);
 }
@@ -230,7 +230,7 @@ void Game::RunWorld(bool& restart)
 	int tick = 0;
 	int scrollSpeed = 2;
 
-	Player* player = new Player(&wData, 15, ROWS / 2, 1, Red);
+	Player* player = new Player(&wData, 15, ROWS / 2, 2, Red);
 	allObjectList.push_back(player);
 
 	SpawnEnemy(COLS - 10, 3 + rand() % ROWS);
@@ -251,29 +251,34 @@ void Game::RunWorld(bool& restart)
 
 		}
 
-		player->MoveObject();
-		if (GetAsyncKeyState(VK_SPACE)) {
-			Bullet* bullet = new Bullet(&wData, player->GetX() + REGULAR_WIDTH - 1, player->GetY() + REGULAR_HEIGHT / 2, 1, Red);
-			bullet->SetOwner(PLAYER);
-			bulletList.push_back(bullet);
-			allObjectList.push_back(bullet);
-		}
-		if (!bulletList.empty()) {
-			for (int i = 0; i < bulletList.size(); i++)
-			{
-				bulletList[i]->MoveObject();
+		if (tick % player->GetSpeed() == 0) {
+			player->MoveObject();
+
+			if (GetAsyncKeyState(VK_SPACE)) {
+				Bullet* bullet = new Bullet(&wData, player->GetX() + REGULAR_WIDTH - 1, player->GetY() + REGULAR_HEIGHT / 2, 1, Red);
+				bullet->SetOwner(PLAYER);
+				bulletList.push_back(bullet);
+				allObjectList.push_back(bullet);
 			}
 		}
 
-		/*if (scrollX % 10 == 0 && scrollX > 0) {
-			SpawnEnemy(COLS - 10, 3 + rand() % ROWS);
-		}*/
-
 		for (int i = 0; i < enemyList.size(); i++)
 		{
-			enemyList[i]->MoveObject();
+			if (tick % enemyList[i]->GetSpeed() == 0) {
+				enemyList[i]->MoveObject();
+				if (tick % 20 == 0) {
+					Bullet* bullet = new Bullet(&wData, enemyList[i]->GetX(), enemyList[i]->GetY() + REGULAR_HEIGHT / 2, 1, Red);
+					bullet->SetOwner(ENEMY);
+					bulletList.push_back(bullet);
+					allObjectList.push_back(bullet);
+				}
+			}
 		}
 
+		for (int i = 0; i < bulletList.size(); i++)
+		{
+			if (tick % bulletList[i]->GetSpeed() == 0) bulletList[i]->MoveObject();
+		}
 
 		DrawToMem();
 
@@ -283,7 +288,7 @@ void Game::RunWorld(bool& restart)
 
 		//DrawInfo(player);
 
-		Sleep(60);
+		Sleep(20);
 
 		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 		
