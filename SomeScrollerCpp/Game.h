@@ -17,7 +17,7 @@ private:
 
     int scrollX = 0;
 
-    bool worldIsRun = true, win = false;
+    bool worldIsRun = true, win = false, alreadySpawn = false;
 
     int score = 0;
 
@@ -38,7 +38,7 @@ private:
 
         HWND hWindowConsole = GetForegroundWindow();
 
-        int Width = 90, Height = 51, err = 30;
+        int Width = 90, Height = 55, err = 30;
 
         bool Terminal() {
 
@@ -181,7 +181,9 @@ protected:
 
     void DrawChanges();
 
-    void SpawnEnemy(int x, int y);
+    void SpawnEnemy(int x, int y, int type);
+
+    void Shot(int gunType, int owner, GameObject* gmObj);
 
     //void DrawLevel();
 

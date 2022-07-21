@@ -41,3 +41,10 @@ enum EnemyType {
 	BOSS
 };
 
+enum GunType {
+	SINGLESHOT,
+	DOUBLESHOT,
+	BOMB,
+	NONE
+};
+

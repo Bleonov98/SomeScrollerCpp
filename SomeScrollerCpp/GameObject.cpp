@@ -15,6 +15,16 @@ int GameObject::GetSpeed()
 	return _speed;
 }
 
+int GameObject::GetWidth()
+{
+	return _width;
+}
+
+int GameObject::GetHeight()
+{
+	return _height;
+}
+
 void GameObject::SetX(int x)
 {
 	_x = x;
@@ -33,6 +43,30 @@ void GameObject::DeleteObject()
 bool GameObject::IsObjectDelete()
 {
 	return _deleteObject;
+}
+
+void GameObject::SetGunType(int gunType)
+{
+	_gunType = gunType;
+}
+
+int GameObject::GetGunType()
+{
+	return _gunType;
+}
+
+void GameObject::ReloadGun()
+{
+	_reload = false;
+
+	Sleep(3000);
+	
+	_reload = true;
+}
+
+bool GameObject::GetGunState()
+{
+	return _reload;
 }
 
 // ----- PLAYER --------
@@ -93,6 +127,11 @@ void Player::Death(bool &worldIsRun)
 	else _lifes--;
 }
 
+int Player::GetLifes()
+{
+	return _lifes;
+}
+
 void Player::ChangeDir()
 {
 	if (GetAsyncKeyState(VK_LEFT) && _x > 2) {
@@ -129,7 +168,7 @@ void Bullet::MoveObject()
 	if (_direction == RIGHT) _x++;
 	else if (_direction == LEFT) _x--;
 
-	if (_x >= COLS || _x <= 2) {
+	if (_x >= COLS - 2 || _x <= 3) {
 		DeleteObject();
 	}
 }
@@ -225,9 +264,25 @@ void Enemy::EraseObject()
 void Enemy::MoveObject()
 {
 	EraseObject();
-	_x--;
-	if (_x <= 2) {
-		DeleteObject();
+	if (_type == SMALL && targetFinded) {
+		 
+		if (!path.empty()) {
+			SetX(path.back().first);
+			SetY(path.back().second);
+
+			path.pop_back();
+
+			if (path.empty()) {
+				DeleteObject();
+			}
+		}
+
+	}
+	else {
+		_x--;
+		if (_x <= 3) {
+			DeleteObject();
+		}
 	}
 }
 
@@ -238,4 +293,110 @@ void Enemy::Hit(int score)
 		score += 500;
 	}
 	else _lifes--;
+}
+
+int Enemy::GetEnemyType()
+{
+	return _type;
+}
+
+void Enemy::SetEnemyType(int type)
+{
+	_type = type;
+
+	if (_type == SMALL) {
+		_width = SMALL_WIDTH - 1;
+		_height = SMALL_HEIGHT;
+		_speed = 1;
+	}
+	else if (_type == REGULAR) {
+		_width = REGULAR_WIDTH - 1;
+		_height = REGULAR_HEIGHT;
+		_gunType = DOUBLESHOT;
+	}
+	else if (_type == BOSS) {
+		_width = BOSS_WIDTH - 1;
+		_height = BOSS_HEIGHT;
+	}
+}
+
+void Enemy::CheckKamikadzeArea(Player* player)
+{
+	if (targetFinded) return;
+
+	attackRange.clear();
+
+	for (int R = 1; R < VISIBLE_RADIUS; R++)
+	{
+		int x = 0;
+		int y = R;
+
+		int delta = 1 - 2 * R;
+		int err = 0;
+
+		while (y >= x) {
+			attackRange.push_back(make_pair(_x + x, _y + y));
+			attackRange.push_back(make_pair(_x + x, _y - y));
+			attackRange.push_back(make_pair(_x - x, _y + y));
+			attackRange.push_back(make_pair(_x - x, _y - y));
+			attackRange.push_back(make_pair(_x + y, _y + x));
+			attackRange.push_back(make_pair(_x + y, _y - x));
+			attackRange.push_back(make_pair(_x - y, _y + x));
+			attackRange.push_back(make_pair(_x - y, _y - x));
+
+			err = 2 * (delta + y) - 1;
+
+			if ((delta < 0) && (err <= 0)) {
+				delta += 2 * ++x + 1;
+				continue;
+			}
+			if ((delta > 0) && (err > 0)) {
+				delta -= 2 * --y + 1;
+				continue;
+			}
+
+			delta += 2 * (++x - --y);
+		}
+	}
+
+	for (int i = 0; i < attackRange.size(); i++)
+	{
+		if ((player->GetX() == attackRange[i].first) && (player->GetY() == attackRange[i].second)) {
+			targetFinded = true;
+			Kamikadze(player->GetX(), player->GetY());
+			break;
+		}
+	}
+}
+
+void Enemy::Kamikadze(int x, int y)
+{
+	int X = _x, Y = _y;
+
+	int dx = abs(x - X);
+	int dy = abs(y - Y);
+
+	int error = dx - dy;
+
+	int dirX = (X < x) ? 1 : -1;
+	int dirY = (Y < y) ? 1 : -1;
+
+	while (X != x && Y != y)
+	{
+		const int error2 = error * 2;
+
+		if (error2 > -dy)
+		{
+			error -= dy;
+			X += dirX;
+		}
+		if (error2 < dx)
+		{
+			error += dx;
+			Y += dirY;
+		}
+
+		path.insert(path.begin(), make_pair(X, Y));
+
+	}
 }

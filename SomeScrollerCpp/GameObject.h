@@ -25,9 +25,15 @@ public:
 
 	int GetSpeed();
 
+	int GetWidth();
+
+	int GetHeight();
+
 	void SetX(int x);
 
 	void SetY(int y);
+
+
 
 	virtual void DrawObject() = 0;
 
@@ -35,17 +41,31 @@ public:
 
 	virtual void MoveObject() = 0;
 
+
+
 	void DeleteObject();
 
 	bool IsObjectDelete();
+
+
+
+	void SetGunType(int gunType);
+
+	bool GetGunState();
+
+	int GetGunType();
+
+	void ReloadGun();
 
 protected:
 
 	wd* wData;
 
-	int _x, _y, _speed, _color, _direction = RIGHT;
+	int _x, _y, _speed, _color, _direction = RIGHT, _gunType = NONE, _width, _height;
 
 	bool _deleteObject = false;
+
+	bool _reload = true;
 };
 
 
@@ -54,7 +74,8 @@ class Player : public GameObject
 {
 public:
 	Player(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
-
+		_width = REGULAR_WIDTH - 1;
+		_height = REGULAR_HEIGHT;
 	}
 
 	void DrawObject() override;
@@ -64,6 +85,8 @@ public:
 	void MoveObject() override;
 
 	void Death(bool& worldIsRun);
+
+	int GetLifes();
 
 private:
 
@@ -84,7 +107,8 @@ private:
 class Enemy : public GameObject
 {
 public:
-	Enemy(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {}
+	Enemy(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
+	}
 
 	void DrawObject() override;
 
@@ -94,8 +118,18 @@ public:
 
 	void Hit(int score);
 
+	int GetEnemyType();
+
+	void SetEnemyType(int type);
+
+	void CheckKamikadzeArea(Player* player);
+
+	void Kamikadze(int x, int y);
+
 private:
 
+	const int VISIBLE_RADIUS = 15;
+ 
 	char16_t smallEnemy[SMALL_HEIGHT][SMALL_WIDTH]{
 		u" -",
 		u"0-",
@@ -124,6 +158,11 @@ private:
 
 	int _type = SMALL, _lifes = 1;
 
+	bool targetFinded = false;
+
+	vector <pair<int, int>> attackRange;
+	vector <pair<int, int>> path;
+
 };
 
 
@@ -131,7 +170,8 @@ private:
 class Bullet : public GameObject
 {
 public:
-	Bullet(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {}
+	Bullet(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
+	}
 	
 	void DrawObject() override;
 
@@ -147,7 +187,7 @@ public:
 
 private:
 
-	bool enemyShot = false, playerShot = false;
+	bool enemyShot = false, playerShot = false, reload = false;
 
 	int _owner;
 
