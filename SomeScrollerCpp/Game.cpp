@@ -237,7 +237,7 @@ void Game::SpawnEnemy(int x, int y, int type)
 	enemyList.push_back(enemy);
 }
 
-void Game::Shot(int gunType, int owner, GameObject* gmObj)
+void Game::Shot(int owner, GameObject* gmObj)
 {
 	if (gmObj->GetGunType() == SINGLESHOT) {
 		if (owner == PLAYER) {
@@ -299,7 +299,7 @@ void Game::Shot(int gunType, int owner, GameObject* gmObj)
 	}
 
 	thread reloadGun([&] {
-		gmObj->ReloadGun();
+		gmObj->ReloadGun(gmObj->GetGunSpeed());
 	});
 	reloadGun.detach();
 }
@@ -324,7 +324,7 @@ void Game::RunWorld(bool& restart)
 
 	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
 	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), REGULAR);
-	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
+	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), BOSS);
 
 	while (worldIsRun) {
 
@@ -347,15 +347,10 @@ void Game::RunWorld(bool& restart)
 			player->MoveObject();
 
 			if (GetAsyncKeyState(VK_SPACE) && player->GetGunState()) {
-				Shot(player->GetGunType(), PLAYER, player);
+				Shot(PLAYER, player);
 			}
 
 		}
-
-		/*if (scrollX % 25 == 0 && !alreadySpawn) { 
-			SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
-			alreadySpawn = true;
-		}*/
 
 		for (int i = 0; i < enemyList.size(); i++)
 		{
@@ -369,7 +364,10 @@ void Game::RunWorld(bool& restart)
 				enemyList[i]->MoveObject();
 
 				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetGunType() != NONE) {
-					Shot(enemyList[i]->GetGunType(), ENEMY, enemyList[i]);
+					Shot(ENEMY, enemyList[i]);
+				}
+				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetEnemyType() == BOSS) {
+					Shot(ENEMY, enemyList[i]);
 				}
 
 			}
@@ -389,10 +387,10 @@ void Game::RunWorld(bool& restart)
 
 		DrawInfo(player);
 
-		Sleep(20);
+		Sleep(10);
 
 		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
-		
+
 		tick++;
 	}
 

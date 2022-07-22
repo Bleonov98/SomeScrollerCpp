@@ -55,13 +55,17 @@ public:
 
 	int GetGunType();
 
-	void ReloadGun();
+	int GetGunSpeed();
+
+	void SetGunSpeed(int gunSpeed);
+
+	void ReloadGun(int reloadTime);
 
 protected:
 
 	wd* wData;
 
-	int _x, _y, _speed, _color, _direction = RIGHT, _gunType = NONE, _width, _height;
+	int _x, _y, _speed, _color, _direction = RIGHT, _gunType = NONE, _width, _height, _gunSpeed = 3000;
 
 	bool _deleteObject = false;
 
@@ -76,6 +80,8 @@ public:
 	Player(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
 		_width = REGULAR_WIDTH - 1;
 		_height = REGULAR_HEIGHT;
+		_gunType = SINGLESHOT;
+		_gunSpeed = 2000;
 	}
 
 	void DrawObject() override;
@@ -126,6 +132,8 @@ public:
 
 	void Kamikadze(int x, int y);
 
+	void BossDir();
+
 private:
 
 	const int VISIBLE_RADIUS = 15;
@@ -159,6 +167,7 @@ private:
 	int _type = SMALL, _lifes = 1;
 
 	bool targetFinded = false;
+	bool bossDir = true;
 
 	vector <pair<int, int>> attackRange;
 	vector <pair<int, int>> path;
@@ -200,6 +209,26 @@ private:
 
 class Bonus : public GameObject
 {
+public:
+
+	Bonus(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
+		
+	}
+
+	void DrawObject() override;
+
+	void EraseObject() override;
+
+	void MoveObject() override;
+
+
+	void SetBonusType(int type);
+
+	int GetBonusType();
+
+private:
+
+	int _type = SPEED; 
 
 };
 

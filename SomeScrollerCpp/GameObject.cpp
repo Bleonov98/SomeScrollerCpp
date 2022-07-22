@@ -55,11 +55,11 @@ int GameObject::GetGunType()
 	return _gunType;
 }
 
-void GameObject::ReloadGun()
+void GameObject::ReloadGun(int reloadTime)
 {
 	_reload = false;
 
-	Sleep(3000);
+	Sleep(reloadTime);
 	
 	_reload = true;
 }
@@ -67,6 +67,16 @@ void GameObject::ReloadGun()
 bool GameObject::GetGunState()
 {
 	return _reload;
+}
+
+int GameObject::GetGunSpeed()
+{
+	return _gunSpeed;
+}
+
+void GameObject::SetGunSpeed(int gunSpeed)
+{
+	_gunSpeed = gunSpeed;
 }
 
 // ----- PLAYER --------
@@ -278,6 +288,9 @@ void Enemy::MoveObject()
 		}
 
 	}
+	else if (_type == BOSS) {
+		BossDir();
+	}
 	else {
 		_x--;
 		if (_x <= 3) {
@@ -317,6 +330,9 @@ void Enemy::SetEnemyType(int type)
 	else if (_type == BOSS) {
 		_width = BOSS_WIDTH - 1;
 		_height = BOSS_HEIGHT;
+		_gunSpeed = 1000;
+		_y = ROWS / 2 - _height / 2;
+		_x = COLS - BOSS_WIDTH;
 	}
 }
 
@@ -399,4 +415,29 @@ void Enemy::Kamikadze(int x, int y)
 		path.insert(path.begin(), make_pair(X, Y));
 
 	}
+}
+
+void Enemy::BossDir()
+{
+	if (_y + _height >= ROWS - 2) {
+		bossDir = false;
+	}
+	if (_y <= 3) {
+		bossDir = true;
+	}
+
+	if (bossDir) _y++;
+	else _y--;
+
+	_gunType = rand() % 2;
+}
+
+void Bonus::SetBonusType(int type)
+{
+	_type = type;
+}
+
+int Bonus::GetBonusType()
+{
+	return _type;
 }

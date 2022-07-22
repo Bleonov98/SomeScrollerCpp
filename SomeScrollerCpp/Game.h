@@ -183,9 +183,7 @@ protected:
 
     void SpawnEnemy(int x, int y, int type);
 
-    void Shot(int gunType, int owner, GameObject* gmObj);
-
-    //void DrawLevel();
+    void Shot(int owner, GameObject* gmObj);
 
     //void Collision(Player* player);
 
