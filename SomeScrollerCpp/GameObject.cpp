@@ -330,6 +330,7 @@ void Enemy::SetEnemyType(int type)
 	else if (_type == BOSS) {
 		_width = BOSS_WIDTH - 1;
 		_height = BOSS_HEIGHT;
+		_speed = 12;
 		_gunSpeed = 1000;
 		_y = ROWS / 2 - _height / 2;
 		_x = COLS - BOSS_WIDTH;

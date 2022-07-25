@@ -145,8 +145,8 @@ private:
         {
             for (int j = 0; j < COLS; j++)
             {
-                if (i > 0 && i < ROWS - 1) continue;
-                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j]) 
+                if (i < 2 && i >= ROWS - 1) continue;
+                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j] && (wData.vBuf[i][j] == 0 || wData.vBuf[i][j] == ' '))
                 {
                     prevActiveAreaBuf[i][j] = activeAreaBuf[i][j];
 

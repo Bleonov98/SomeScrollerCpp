@@ -323,10 +323,11 @@ void Game::RunWorld(bool& restart)
 	allObjectList.push_back(player);
 
 	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
-	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), REGULAR);
-	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), BOSS);
+	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
 
 	while (worldIsRun) {
+
+		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 
 		if (pause) {
 
@@ -388,8 +389,6 @@ void Game::RunWorld(bool& restart)
 		DrawInfo(player);
 
 		Sleep(10);
-
-		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 
 		tick++;
 	}
