@@ -49,8 +49,8 @@ enum GunType {
 };
 
 enum BonusType {
-	SPEED,
-	GUN,
+	GUNSPEED,
+	GUNTYPE,
 	LIFE
 };
 

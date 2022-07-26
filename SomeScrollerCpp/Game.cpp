@@ -217,7 +217,7 @@ void Game::DrawToMem()
 
 void Game::SpawnEnemy(int x, int y, int type)
 {
-	Enemy* enemy = new Enemy(&wData, x, y, 2, Blue);
+	Enemy* enemy = new Enemy(&wData, x, y, 2, BrPurple);
 
 	for (int i = 0; i < enemyList.size(); i++)
 	{
@@ -304,6 +304,10 @@ void Game::Shot(int owner, GameObject* gmObj)
 	reloadGun.detach();
 }
 
+void Game::Collision(Player* player) {
+
+}
+
 void Game::RunWorld(bool& restart)
 {
 	srand(time(NULL));
@@ -319,15 +323,13 @@ void Game::RunWorld(bool& restart)
 	int tick = 0;
 	int scrollSpeed = 2;
 
-	Player* player = new Player(&wData, 15, ROWS / 2, 2, Red);
+	Player* player = new Player(&wData, 15, ROWS / 2, 2, Cyan);
 	allObjectList.push_back(player);
 
 	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
 	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
 
 	while (worldIsRun) {
-
-		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 
 		if (pause) {
 
@@ -383,6 +385,8 @@ void Game::RunWorld(bool& restart)
 		DrawToMem();
 
 		DrawChanges();
+
+		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
 
 		//Collision(player);
 

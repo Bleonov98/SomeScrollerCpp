@@ -212,7 +212,10 @@ class Bonus : public GameObject
 public:
 
 	Bonus(wd* wData, int x, int y, int speed, int color) :GameObject(wData, x, y, speed, color) {
-		
+		_width = SMALL_WIDTH - 1;
+		_height = SMALL_HEIGHT;
+		_gunType = NONE;
+		_speed = 1;
 	}
 
 	void DrawObject() override;
@@ -228,7 +231,23 @@ public:
 
 private:
 
-	int _type = SPEED; 
+	int _type = GUNSPEED; 
+
+	char16_t gunspeedSprite[SMALL_HEIGHT][SMALL_WIDTH]{
+		u"--",
+		u"SP",
+		u"--"
+	};
+	char16_t guntypeSprite[SMALL_HEIGHT][SMALL_WIDTH]{
+		u"--",
+		u"TP",
+		u"--"
+	};
+	char16_t lifeBonusSprite[SMALL_HEIGHT][SMALL_WIDTH]{
+		u"--",
+		u"LF",
+		u"--"
+	};
 
 };
 

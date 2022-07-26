@@ -158,6 +158,16 @@ private:
         }
 
         if (scrollX + COLS < 1023) scrollX++;
+
+        if (scrollX % 120 == 0 && scrollX > 0) {
+            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), REGULAR);
+        }
+        if (scrollX % 50 == 0 && scrollX > 0) {
+            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
+        }
+        if (scrollX + COLS == 1020) {
+            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), BOSS);
+        }
     }
 
     VirtualTerminal term; // console setting
@@ -185,7 +195,7 @@ protected:
 
     void Shot(int owner, GameObject* gmObj);
 
-    //void Collision(Player* player);
+    void Collision(Player* player);
 
 public:
 
