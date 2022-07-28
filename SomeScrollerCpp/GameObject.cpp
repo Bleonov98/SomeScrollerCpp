@@ -130,17 +130,31 @@ void Player::MoveObject()
 
 void Player::Death(bool &worldIsRun)
 {
-	Sleep(500);
+	_gunType = SINGLESHOT;
+	_gunSpeed = 2000;
 
-	if (_lifes == 1) {
-		worldIsRun = false;
+	_hp--;
+
+	if (_hp == 0) {
+		if (_lifes == 1) {
+			worldIsRun = false;
+			_hp = 0;
+		}
+		else {
+			_lifes--;
+			_hp = 2;
+		}
 	}
-	else _lifes--;
 }
 
 int Player::GetLifes()
 {
 	return _lifes;
+}
+
+int Player::GetHp()
+{
+	return _hp;
 }
 
 void Player::ChangeDir()
@@ -324,19 +338,22 @@ void Enemy::SetEnemyType(int type)
 		_width = SMALL_WIDTH - 1;
 		_height = SMALL_HEIGHT;
 		_speed = 1;
+		_lifes = 1;
 	}
 	else if (_type == REGULAR) {
 		_width = REGULAR_WIDTH - 1;
 		_height = REGULAR_HEIGHT;
 		_gunType = DOUBLESHOT;
+		_lifes = 1;
 	}
 	else if (_type == BOSS) {
 		_width = BOSS_WIDTH - 1;
 		_height = BOSS_HEIGHT;
 		_speed = 12;
-		_gunSpeed = 750;
+		_gunSpeed = 650;
 		_y = ROWS / 2 - _height / 2;
 		_x = COLS - BOSS_WIDTH;
+		_lifes = 15;
 	}
 }
 
@@ -391,6 +408,11 @@ void Enemy::CheckKamikadzeArea(Player* player)
 
 void Enemy::Kamikadze(int x, int y)
 {
+	if (y == _y) {	
+		targetFinded = false;
+		return; 
+	}
+
 	int X = _x, Y = _y;
 
 	int dx = abs(x - X);

@@ -44,7 +44,6 @@ enum EnemyType {
 enum GunType {
 	SINGLESHOT,
 	DOUBLESHOT,
-	BOMB,
 	NONE
 };
 

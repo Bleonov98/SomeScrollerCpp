@@ -86,17 +86,17 @@ void Game::CreateWorld() {
 void Game::DrawEndInfo(bool& restart)
 {
 	if (win) {
-		SetPos(COLS + 4, 20);
+		SetPos(24, ROWS + 2);
 		cout << "CONGRATULATION! YOU WIN!";
 	}
 	else {
-		SetPos(COLS + 11, 20);
+		SetPos(30, ROWS + 2);
 		cout << "GAME OVER!";
 	}
 
-	SetPos(COLS + 5, 22);
+	SetPos(25, ROWS + 3);
 	cout << "PRESS ENTER TO RESTART";
-	SetPos(COLS + 7, 23);
+	SetPos(27, ROWS + 4);
 	cout << "PRESS ESC TO EXIT";
 
 	bool pressed = false;
@@ -118,6 +118,10 @@ void Game::DrawInfo(Player* player)
 {
 	SetPos(10, ROWS + 2);
 	cout << "SCORE: " << score;
+	SetPos(10, ROWS + 3);
+	cout << "HP: " << "   ";
+	SetPos(10, ROWS + 3);
+	cout << "HP: " << player->GetHp() * 50;
 	SetPos(10, ROWS + 4);
 	cout << "LIFES: " << player->GetLifes();
 }
@@ -191,6 +195,7 @@ void Game::DrawToMem()
 	{
 		if (enemyList[i]->IsObjectDelete()) {
 			enemyList.erase(enemyList.begin() + i);
+			i = -1;
 		}
 	}
 
@@ -198,6 +203,8 @@ void Game::DrawToMem()
 	{
 		if (bulletList[i]->IsObjectDelete()) {
 			bulletList.erase(bulletList.begin() + i);
+
+			i = -1;
 		}
 	}
 
@@ -206,6 +213,8 @@ void Game::DrawToMem()
 		if (allObjectList[i]->IsObjectDelete()) {
 			wData.vBuf[allObjectList[i]->GetY()][allObjectList[i]->GetX()] = u' ';
 			allObjectList.erase(allObjectList.begin() + i);
+
+			i = -1;
 		}
 	}
 
@@ -288,15 +297,6 @@ void Game::Shot(int owner, GameObject* gmObj)
 			}
 		}
 	}
-	else if (gmObj->GetGunType() == BOMB) {
-		for (int i = 0; i < 2; i++)
-		{
-			Bullet* bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
-			bullet->SetOwner(owner);
-			bulletList.push_back(bullet);
-			allObjectList.push_back(bullet);
-		}
-	}
 
 	thread reloadGun([&] {
 		gmObj->ReloadGun(gmObj->GetGunSpeed());
@@ -305,6 +305,91 @@ void Game::Shot(int owner, GameObject* gmObj)
 }
 
 void Game::Collision(Player* player) {
+	for (int enemy = 0; enemy < enemyList.size(); enemy++)
+	{
+
+		bool finded = false;
+
+		for (int h = 0; h < enemyList[enemy]->GetHeight(); h++)
+		{
+			for (int w = 0; w < enemyList[enemy]->GetWidth(); w++)
+			{
+
+				for (int ph = 0; ph < player->GetHeight(); ph++)
+				{
+					for (int pw = 0; pw < player->GetWidth(); pw++)
+					{
+						if ((enemyList[enemy]->GetX() + w == player->GetX() + pw) && (enemyList[enemy]->GetY() + h == player->GetY() + ph)) {
+
+							enemyList[enemy]->DeleteObject();
+
+							player->Death(worldIsRun);
+
+
+							finded = true;
+							break;
+						}
+					}
+					if (finded) break;
+				}
+				if (finded) break;
+			}
+			if (finded) break;
+		}
+
+		finded = false;
+	}
+
+	for (int bullet = 0; bullet < bulletList.size(); bullet++)
+	{
+		bool finded = false;
+		for (int h = 0; h < player->GetHeight(); h++)
+		{
+			for (int w = 0; w < player->GetWidth(); w++)
+			{
+				if (bulletList[bullet]->GetX() == player->GetX() + w && bulletList[bullet]->GetY() == player->GetY() + h && bulletList[bullet]->GetOwner() == ENEMY) {
+					player->Death(worldIsRun);
+
+					bulletList[bullet]->DeleteObject();
+
+					finded = true;
+					break;
+				}
+			}
+			if (finded) break;
+		}
+		if (finded) break;
+	}
+
+	for (int bullet = 0; bullet < bulletList.size(); bullet++)
+	{
+		bool finded = false;
+		for (int enemy = 0; enemy < enemyList.size(); enemy++)
+		{
+
+			for (int h = 0; h < enemyList[enemy]->GetHeight(); h++)
+			{
+				for (int w = 0; w < enemyList[enemy]->GetWidth(); w++)
+				{
+
+					if (bulletList[bullet]->GetX() == enemyList[enemy]->GetX() + w &&
+						bulletList[bullet]->GetY() == enemyList[enemy]->GetY() + h &&
+						bulletList[bullet]->GetOwner() == PLAYER) 
+					{
+						enemyList[enemy]->Hit(score);
+
+						finded = true;
+						
+						break;
+					}
+
+				}
+				if (finded) break;
+			}
+			if (finded) break;
+
+		}
+	}
 
 }
 
@@ -382,13 +467,13 @@ void Game::RunWorld(bool& restart)
 			if (tick % bulletList[i]->GetSpeed() == 0) bulletList[i]->MoveObject();
 		}
 
+		Collision(player);
+
 		DrawToMem();
 
 		DrawChanges();
 
 		if (tick % scrollSpeed == 0 && tick > 0) ScrollWindow();
-
-		//Collision(player);
 
 		DrawInfo(player);
 

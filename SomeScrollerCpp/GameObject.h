@@ -94,11 +94,13 @@ public:
 
 	int GetLifes();
 
+	int GetHp();
+
 private:
 
 	void ChangeDir();
 
-	int _lifes = 3;
+	int _lifes = 3, _hp = 2;
 
 	char16_t playerSprite[REGULAR_HEIGHT][REGULAR_WIDTH]{
 		u"==  ",
@@ -129,10 +131,7 @@ public:
 	void SetEnemyType(int type);
 
 	void CheckKamikadzeArea(Player* player);
-
-	void Kamikadze(int x, int y);
-
-	void BossDir();
+	
 
 private:
 
@@ -172,6 +171,10 @@ private:
 	vector <pair<int, int>> attackRange;
 	vector <pair<int, int>> path;
 
+	void BossDir();
+
+	void Kamikadze(int x, int y);
+
 };
 
 
@@ -201,9 +204,6 @@ private:
 	int _owner;
 
 };
-
-
-
 
 
 
