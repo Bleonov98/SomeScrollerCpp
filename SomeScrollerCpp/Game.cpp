@@ -62,7 +62,7 @@ void Game::DrawArea()
 	{
 		for (int w = 0; w < COLS; w++)
 		{
-			cout << GameMap[h][w] << flush;
+			cout << GameMap[h][w];
 			activeAreaBuf[h][w] = GameMap[h][w];
 		}
 	}
@@ -116,14 +116,26 @@ void Game::DrawEndInfo(bool& restart)
 
 void Game::DrawInfo(Player* player)
 {
-	SetPos(10, ROWS + 2);
+	int _speed = 1;
+
+	if (player->GetGunSpeed() == 2000) _speed = 1;
+	else if (player->GetGunSpeed() == 1750) _speed = 2;
+	else if (player->GetGunSpeed() == 1500) _speed = 3;
+	else if (player->GetGunSpeed() == 1250) _speed = 4;
+	else if (player->GetGunSpeed() == 1000) _speed = 5;
+	else if (player->GetGunSpeed() == 750) _speed = 6;
+	else if (player->GetGunSpeed() == 500) _speed = 7;
+
+	SetPos(5, ROWS + 2);
 	cout << "SCORE: " << score;
-	SetPos(10, ROWS + 3);
+	SetPos(5, ROWS + 3);
 	cout << "HP: " << "   ";
-	SetPos(10, ROWS + 3);
+	SetPos(5, ROWS + 3);
 	cout << "HP: " << player->GetHp() * 50;
-	SetPos(10, ROWS + 4);
+	SetPos(5, ROWS + 4);
 	cout << "LIFES: " << player->GetLifes();
+	SetPos(5, ROWS + 5);
+	cout << "SPEED: " << _speed;
 }
 
 void Game::DrawChanges()
@@ -208,6 +220,15 @@ void Game::DrawToMem()
 		}
 	}
 
+	for (int i = 0; i < bonusList.size(); i++)
+	{
+		if (bonusList[i]->IsObjectDelete()) {
+			bonusList.erase(bonusList.begin() + i);
+
+			i = -1;
+		}
+	}
+
 	for (int i = 0; i < allObjectList.size(); i++)
 	{
 		if (allObjectList[i]->IsObjectDelete()) {
@@ -226,7 +247,7 @@ void Game::DrawToMem()
 
 void Game::SpawnEnemy(int x, int y, int type)
 {
-	Enemy* enemy = new Enemy(&wData, x, y, 2, BrPurple);
+	enemy = new Enemy(&wData, x, y, 2, BrPurple);
 
 	for (int i = 0; i < enemyList.size(); i++)
 	{
@@ -246,17 +267,26 @@ void Game::SpawnEnemy(int x, int y, int type)
 	enemyList.push_back(enemy);
 }
 
+void Game::ReloadGun(GameObject* gmObj)
+{
+	gmObj->SetGunState(false);
+
+	this_thread::sleep_for(milliseconds(gmObj->GetGunSpeed()));
+
+	gmObj->SetGunState(true);
+}
+
 void Game::Shot(int owner, GameObject* gmObj)
 {
 	if (gmObj->GetGunType() == SINGLESHOT) {
 		if (owner == PLAYER) {
-			Bullet* bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
+			bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
 			bullet->SetOwner(owner);
 			bulletList.push_back(bullet);
 			allObjectList.push_back(bullet);
 		}
 		else {
-			Bullet* bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
+			bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
 			bullet->SetOwner(owner);
 			bulletList.push_back(bullet);
 			allObjectList.push_back(bullet);
@@ -267,13 +297,13 @@ void Game::Shot(int owner, GameObject* gmObj)
 		{
 			if (i == 0) {
 				if (owner == PLAYER) {
-					Bullet* bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY(), 1, Red);
+					bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY(), 1, Red);
 					bullet->SetOwner(owner);
 					bulletList.push_back(bullet);
 					allObjectList.push_back(bullet);
 				}
 				else {
-					Bullet* bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY(), 1, Red);
+					bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY(), 1, Red);
 					bullet->SetOwner(owner);
 					bulletList.push_back(bullet);
 					allObjectList.push_back(bullet);
@@ -282,13 +312,13 @@ void Game::Shot(int owner, GameObject* gmObj)
 			}
 			else {
 				if (owner == PLAYER) {
-					Bullet* bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY() + gmObj->GetHeight() - 1, 1, Red);
+					bullet = new Bullet(&wData, gmObj->GetX() + gmObj->GetWidth(), gmObj->GetY() + gmObj->GetHeight() - 1, 1, Red);
 					bullet->SetOwner(owner);
 					bulletList.push_back(bullet);
 					allObjectList.push_back(bullet);
 				}
 				else {
-					Bullet* bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() - 1, 1, Red);
+					bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() - 1, 1, Red);
 					bullet->SetOwner(owner);
 					bulletList.push_back(bullet);
 					allObjectList.push_back(bullet);
@@ -297,14 +327,21 @@ void Game::Shot(int owner, GameObject* gmObj)
 			}
 		}
 	}
+}
 
-	thread reloadGun([&] {
-		gmObj->ReloadGun(gmObj->GetGunSpeed());
-	});
-	reloadGun.detach();
+void Game::SpawnBonus(Enemy* enemy, int type)
+{
+	if (type >= 3) return;
+
+	bonus = new Bonus(&wData, enemy->GetX() - 1, enemy->GetY(), 1, Yellow);
+
+	bonus->SetBonusType(type);
+	allObjectList.push_back(bonus);
+	bonusList.push_back(bonus);
 }
 
 void Game::Collision(Player* player) {
+
 	for (int enemy = 0; enemy < enemyList.size(); enemy++)
 	{
 
@@ -342,55 +379,113 @@ void Game::Collision(Player* player) {
 
 	for (int bullet = 0; bullet < bulletList.size(); bullet++)
 	{
+
 		bool finded = false;
-		for (int h = 0; h < player->GetHeight(); h++)
-		{
-			for (int w = 0; w < player->GetWidth(); w++)
+
+		if (bulletList[bullet]->GetOwner() == PLAYER) {
+			for (int enemy = 0; enemy < enemyList.size(); enemy++)
 			{
-				if (bulletList[bullet]->GetX() == player->GetX() + w && bulletList[bullet]->GetY() == player->GetY() + h && bulletList[bullet]->GetOwner() == ENEMY) {
-					player->Death(worldIsRun);
 
-					bulletList[bullet]->DeleteObject();
-
-					finded = true;
-					break;
-				}
-			}
-			if (finded) break;
-		}
-		if (finded) break;
-	}
-
-	for (int bullet = 0; bullet < bulletList.size(); bullet++)
-	{
-		bool finded = false;
-		for (int enemy = 0; enemy < enemyList.size(); enemy++)
-		{
-
-			for (int h = 0; h < enemyList[enemy]->GetHeight(); h++)
-			{
-				for (int w = 0; w < enemyList[enemy]->GetWidth(); w++)
+				for (int h = 0; h < enemyList[enemy]->GetHeight(); h++)
 				{
-
-					if (bulletList[bullet]->GetX() == enemyList[enemy]->GetX() + w &&
-						bulletList[bullet]->GetY() == enemyList[enemy]->GetY() + h &&
-						bulletList[bullet]->GetOwner() == PLAYER) 
+					for (int w = 0; w < enemyList[enemy]->GetWidth(); w++)
 					{
-						enemyList[enemy]->Hit(score);
+
+						if (bulletList[bullet]->GetX() == enemyList[enemy]->GetX() + w &&
+							bulletList[bullet]->GetY() == enemyList[enemy]->GetY() + h)
+						{
+							enemyList[enemy]->Hit(score, worldIsRun, win);
+							bulletList[bullet]->DeleteObject();
+
+							SpawnBonus(enemyList[enemy], rand() % 7);
+
+							finded = true;
+
+							break;
+						}
+
+					}
+					if (finded) break;
+				}
+				if (finded) break;
+
+			}
+		}
+		else if (bulletList[bullet]->GetOwner() == ENEMY) {
+			for (int h = 0; h < player->GetHeight(); h++)
+			{
+				for (int w = 0; w < player->GetWidth(); w++)
+				{
+					if (bulletList[bullet]->GetX() == player->GetX() + w && bulletList[bullet]->GetY() == player->GetY() + h) {
+						player->Death(worldIsRun);
+
+						bulletList[bullet]->DeleteObject();
 
 						finded = true;
-						
 						break;
 					}
-
 				}
 				if (finded) break;
 			}
 			if (finded) break;
-
 		}
+		finded = false;
 	}
 
+	for (int bonus = 0; bonus < bonusList.size(); bonus++)
+	{
+		bool finded = false;
+		for (int h = 0; h < bonusList[bonus]->GetHeight(); h++)
+		{
+			for (int w = 0; w < bonusList[bonus]->GetWidth(); w++)
+			{
+
+				for (int ph = 0; ph < player->GetHeight(); ph++)
+				{
+					for (int pw = 0; pw < player->GetWidth(); pw++)
+					{
+
+						if (bonusList[bonus]->GetX() + w == player->GetX() + pw &&
+							bonusList[bonus]->GetY() + h == player->GetY() + ph) {
+
+							bonusList[bonus]->DeleteObject();
+							score += 150;
+
+							if (bonusList[bonus]->GetBonusType() == GUNSPEED) {
+								if (player->GetGunSpeed() > 500) {
+									player->SetGunSpeed(player->GetGunSpeed() - 250);
+
+									finded = true;
+									break;
+								}
+								else {
+									finded = true;
+									break;
+								}
+							}
+							else if (bonusList[bonus]->GetBonusType() == GUNTYPE) {
+								player->SetGunType(DOUBLESHOT);
+
+								finded = true;
+								break;
+							}
+							else if (bonusList[bonus]->GetBonusType() == LIFE) {
+								player->AddLifes();
+
+								finded = true;
+								break;
+							}
+
+						}
+					}
+					if (finded) break;
+				}
+				if (finded) break;
+			}
+			if (finded) break;
+		}
+		finded = false;
+	}
 }
 
 void Game::RunWorld(bool& restart)
@@ -431,11 +526,14 @@ void Game::RunWorld(bool& restart)
 		}
 
 		if (tick % player->GetSpeed() == 0) {
-
 			player->MoveObject();
 
 			if (GetAsyncKeyState(VK_SPACE) && player->GetGunState()) {
 				Shot(PLAYER, player);
+				thread reloadGun([&] {
+					ReloadGun(player);
+					});
+				reloadGun.detach();
 			}
 
 		}
@@ -451,13 +549,13 @@ void Game::RunWorld(bool& restart)
 
 				enemyList[i]->MoveObject();
 
-				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetGunType() != NONE) {
-					Shot(ENEMY, enemyList[i]);
+				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetEnemyType() != SMALL) {
+					Shot(ENEMY, enemyList[i]); 
+					thread reloadGun([&] {
+						ReloadGun(enemyList[i]);
+						});
+					reloadGun.detach();
 				}
-				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetEnemyType() == BOSS) {
-					Shot(ENEMY, enemyList[i]);
-				}
-
 			}
 
 		}
@@ -465,6 +563,11 @@ void Game::RunWorld(bool& restart)
 		for (int i = 0; i < bulletList.size(); i++)
 		{
 			if (tick % bulletList[i]->GetSpeed() == 0) bulletList[i]->MoveObject();
+		}
+
+		for (int i = 0; i < bonusList.size(); i++)
+		{
+			bonusList[i]->MoveObject();
 		}
 
 		Collision(player);

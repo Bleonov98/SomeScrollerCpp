@@ -24,6 +24,11 @@ private:
     vector<GameObject*> allObjectList;
     vector<Bullet*> bulletList;
     vector<Enemy*> enemyList;
+    vector<Bonus*> bonusList;
+
+    Bonus* bonus;
+    Enemy* enemy;
+    Bullet* bullet;
 
     HINSTANCE hInstance;
 
@@ -146,7 +151,7 @@ private:
             for (int j = 0; j < COLS; j++)
             {
                 if (i < 2 && i >= ROWS - 1) continue;
-                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j] && (wData.vBuf[i][j] == 0 || wData.vBuf[i][j] == ' '))
+                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j] && (wData.vBuf[i][j] == 0 || wData.vBuf[i][j] == u' '))
                 {
                     prevActiveAreaBuf[i][j] = activeAreaBuf[i][j];
 
@@ -192,6 +197,10 @@ protected:
     void DrawChanges();
 
     void SpawnEnemy(int x, int y, int type);
+
+    void SpawnBonus(Enemy* enemy, int type);
+
+    void ReloadGun(GameObject* gmObj);
 
     void Shot(int owner, GameObject* gmObj);
 

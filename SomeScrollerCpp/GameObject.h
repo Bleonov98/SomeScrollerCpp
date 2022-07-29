@@ -51,25 +51,23 @@ public:
 
 	void SetGunType(int gunType);
 
-	bool GetGunState();
+	virtual void SetGunState(bool reload) = 0;
+
+	virtual bool GetGunState() = 0;
 
 	int GetGunType();
 
-	int GetGunSpeed();
+	virtual int GetGunSpeed() = 0;
 
-	void SetGunSpeed(int gunSpeed);
-
-	void ReloadGun(int reloadTime);
+	virtual void SetGunSpeed(int gunSpeed) = 0;
 
 protected:
 
 	wd* wData;
 
-	int _x, _y, _speed, _color, _direction = RIGHT, _gunType = NONE, _width, _height, _gunSpeed = 3000;
+	int _x, _y, _speed, _color, _direction = RIGHT, _gunType = NONE, _width, _height;
 
 	bool _deleteObject = false;
-
-	bool _reload = true;
 };
 
 
@@ -92,7 +90,20 @@ public:
 
 	void Death(bool& worldIsRun);
 
+
+	void SetGunState(bool reload) override;
+
+	bool GetGunState() override;
+
+
+	void SetGunSpeed(int gunSpeed) override;
+
+	int GetGunSpeed() override;
+
+
 	int GetLifes();
+
+	void AddLifes();
 
 	int GetHp();
 
@@ -100,7 +111,9 @@ private:
 
 	void ChangeDir();
 
-	int _lifes = 3, _hp = 2;
+	int _lifes = 3, _hp = 2, _gunSpeed = 2000;
+
+	bool _reload = true;
 
 	char16_t playerSprite[REGULAR_HEIGHT][REGULAR_WIDTH]{
 		u"==  ",
@@ -124,11 +137,24 @@ public:
 
 	void MoveObject() override;
 
-	void Hit(int score);
+	void Hit(int& score, bool& worldIsRun, bool& win);
+
 
 	int GetEnemyType();
 
 	void SetEnemyType(int type);
+
+
+	void SetGunState(bool reload) override;
+
+	bool GetGunState() override;
+
+
+	void SetGunSpeed(int gunSpeed) override;
+
+	int GetGunSpeed() override;
+
+
 
 	void CheckKamikadzeArea(Player* player);
 	
@@ -175,6 +201,9 @@ private:
 
 	void Kamikadze(int x, int y);
 
+	int _gunSpeed = 3000;
+
+	bool _reload = true;
 };
 
 
@@ -190,18 +219,28 @@ public:
 	void EraseObject() override;
 
 
-	bool GetOwner();
+	int GetOwner();
 
 	void SetOwner(int owner);
 
 
 	void MoveObject() override;
 
+	
+	void SetGunState(bool reload) override;
+
+	bool GetGunState() override;
+
+
+	void SetGunSpeed(int gunSpeed) override;
+
+	int GetGunSpeed() override;
+
+
 private:
 
-	bool enemyShot = false, playerShot = false, reload = false;
-
 	int _owner;
+
 
 };
 
@@ -228,6 +267,16 @@ public:
 	void SetBonusType(int type);
 
 	int GetBonusType();
+
+
+	void SetGunState(bool reload) override;
+
+	bool GetGunState() override;
+
+
+	void SetGunSpeed(int gunSpeed) override;
+
+	int GetGunSpeed() override;
 
 private:
 

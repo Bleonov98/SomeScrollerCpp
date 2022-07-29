@@ -55,30 +55,6 @@ int GameObject::GetGunType()
 	return _gunType;
 }
 
-void GameObject::ReloadGun(int reloadTime)
-{
-	_reload = false;
-
-	Sleep(reloadTime);
-	
-	_reload = true;
-}
-
-bool GameObject::GetGunState()
-{
-	return _reload;
-}
-
-int GameObject::GetGunSpeed()
-{
-	return _gunSpeed;
-}
-
-void GameObject::SetGunSpeed(int gunSpeed)
-{
-	_gunSpeed = gunSpeed;
-}
-
 // ----- PLAYER --------
 
 
@@ -130,12 +106,10 @@ void Player::MoveObject()
 
 void Player::Death(bool &worldIsRun)
 {
-	_gunType = SINGLESHOT;
-	_gunSpeed = 2000;
-
 	_hp--;
 
 	if (_hp == 0) {
+		Sleep(500);
 		if (_lifes == 1) {
 			worldIsRun = false;
 			_hp = 0;
@@ -144,12 +118,40 @@ void Player::Death(bool &worldIsRun)
 			_lifes--;
 			_hp = 2;
 		}
+
+		_gunType = SINGLESHOT;
+		_gunSpeed = 2000;
 	}
+}
+
+void Player::SetGunState(bool reload)
+{
+	_reload = reload;
+}
+
+void Player::SetGunSpeed(int gunSpeed)
+{
+	_gunSpeed = gunSpeed;
+}
+
+int Player::GetGunSpeed()
+{
+	return _gunSpeed;
+}
+
+bool Player::GetGunState()
+{
+	return _reload;
 }
 
 int Player::GetLifes()
 {
 	return _lifes;
+}
+
+void Player::AddLifes()
+{
+	_lifes++;
 }
 
 int Player::GetHp()
@@ -199,28 +201,39 @@ void Bullet::MoveObject()
 	}
 }
 
+void Bullet::SetGunState(bool reload)
+{
+}
+
+bool Bullet::GetGunState()
+{
+	return false;
+}
+
+void Bullet::SetGunSpeed(int gunSpeed)
+{
+}
+
+int Bullet::GetGunSpeed()
+{
+	return 0;
+}
+
 void Bullet::SetOwner(int owner)
 {
 	_owner = owner;
 
 	if (_owner == PLAYER) {
-		playerShot = true;
 		_direction = RIGHT;
 	}
 	else if (_owner == ENEMY) {
-		enemyShot = true;
 		_direction = LEFT;
 	}
 }
 
-bool Bullet::GetOwner()
+int Bullet::GetOwner()
 {
-	if (_owner == PLAYER) {
-		return playerShot;
-	}
-	else if (_owner == ENEMY) {
-		return enemyShot;
-	}
+	return _owner;
 }
 
 // ----- ENEMY --------
@@ -316,11 +329,24 @@ void Enemy::MoveObject()
 	}
 }
 
-void Enemy::Hit(int score)
+void Enemy::Hit(int& score, bool& worldIsRun, bool& win)
 {
 	if (_lifes == 1) {
 		DeleteObject();
-		score += 500;
+		EraseObject();
+
+		if (_type == SMALL) {
+			score += 250;
+		}
+		else if (_type == REGULAR) {
+			score += 500;
+		}
+		else if (_type == BOSS) {
+			score += 2500;
+			worldIsRun = false;
+			win = true;
+		}
+
 	}
 	else _lifes--;
 }
@@ -353,8 +379,28 @@ void Enemy::SetEnemyType(int type)
 		_gunSpeed = 650;
 		_y = ROWS / 2 - _height / 2;
 		_x = COLS - BOSS_WIDTH;
-		_lifes = 15;
+		_lifes = 25;
 	}
+}
+
+void Enemy::SetGunState(bool reload)
+{
+	_reload = reload;
+}
+
+bool Enemy::GetGunState()
+{
+	return _reload;
+}
+
+void Enemy::SetGunSpeed(int gunSpeed)
+{
+	_gunSpeed = gunSpeed;
+}
+
+int Enemy::GetGunSpeed()
+{
+	return _gunSpeed;
 }
 
 void Enemy::CheckKamikadzeArea(Player* player)
@@ -524,4 +570,22 @@ void Bonus::SetBonusType(int type)
 int Bonus::GetBonusType()
 {
 	return _type;
+}
+
+void Bonus::SetGunState(bool reload)
+{
+}
+
+bool Bonus::GetGunState()
+{
+	return false;
+}
+
+void Bonus::SetGunSpeed(int gunSpeed)
+{
+}
+
+int Bonus::GetGunSpeed()
+{
+	return 0;
 }
