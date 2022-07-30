@@ -165,13 +165,13 @@ private:
         if (scrollX + COLS < 1023) scrollX++;
 
         if (scrollX % 120 == 0 && scrollX > 0) {
-            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), REGULAR);
+            SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), REGULAR);
         }
         if (scrollX % 50 == 0 && scrollX > 0) {
-            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
+            SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), SMALL);
         }
         if (scrollX + COLS == 1020) {
-            SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), BOSS);
+            SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), BOSS);
         }
     }
 
@@ -200,7 +200,9 @@ protected:
 
     void SpawnBonus(Enemy* enemy, int type);
 
-    void ReloadGun(GameObject* gmObj);
+    void ReloadGun(Player* player);
+
+    void ReloadEnGun(Enemy* enemy);
 
     void Shot(int owner, GameObject* gmObj);
 

@@ -383,6 +383,7 @@ void Enemy::SetEnemyType(int type)
 	}
 }
 
+
 void Enemy::SetGunState(bool reload)
 {
 	_reload = reload;
@@ -402,6 +403,8 @@ int Enemy::GetGunSpeed()
 {
 	return _gunSpeed;
 }
+
+
 
 void Enemy::CheckKamikadzeArea(Player* player)
 {

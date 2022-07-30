@@ -245,35 +245,22 @@ void Game::DrawToMem()
 	}
 }
 
-void Game::SpawnEnemy(int x, int y, int type)
+void Game::ReloadGun(Player* player)
 {
-	enemy = new Enemy(&wData, x, y, 2, BrPurple);
+	player->SetGunState(false);
 
-	for (int i = 0; i < enemyList.size(); i++)
-	{
-		for (int h = 0; h < enemyList[i]->GetHeight(); h++)
-		{
-			for (int w = 0; w < enemyList[i]->GetWidth(); w++)
-			{
-				if (enemy->GetX() + w == enemyList[i]->GetX() + w && enemy->GetY() + h == enemyList[i]->GetY() + h) {
-					return;
-				}
-			}
-		}
-	}
+	this_thread::sleep_for(milliseconds(player->GetGunSpeed()));
 
-	enemy->SetEnemyType(type);
-	allObjectList.push_back(enemy);
-	enemyList.push_back(enemy);
+	player->SetGunState(true);
 }
 
-void Game::ReloadGun(GameObject* gmObj)
+void Game::ReloadEnGun(Enemy* enemy)
 {
-	gmObj->SetGunState(false);
+	enemy->SetGunState(false);
 
-	this_thread::sleep_for(milliseconds(gmObj->GetGunSpeed()));
+	this_thread::sleep_for(milliseconds(enemy->GetGunSpeed()));
 
-	gmObj->SetGunState(true);
+	enemy->SetGunState(true);
 }
 
 void Game::Shot(int owner, GameObject* gmObj)
@@ -338,6 +325,28 @@ void Game::SpawnBonus(Enemy* enemy, int type)
 	bonus->SetBonusType(type);
 	allObjectList.push_back(bonus);
 	bonusList.push_back(bonus);
+}
+
+void Game::SpawnEnemy(int x, int y, int type)
+{
+	enemy = new Enemy(&wData, x, y, 2, BrPurple);
+
+	for (int i = 0; i < enemyList.size(); i++)
+	{
+		for (int h = 0; h < enemyList[i]->GetHeight(); h++)
+		{
+			for (int w = 0; w < enemyList[i]->GetWidth(); w++)
+			{
+				if (enemy->GetX() + w == enemyList[i]->GetX() + w && enemy->GetY() + h == enemyList[i]->GetY() + h) {
+					return;
+				}
+			}
+		}
+	}
+
+	enemy->SetEnemyType(type);
+	allObjectList.push_back(enemy);
+	enemyList.push_back(enemy);
 }
 
 void Game::Collision(Player* player) {
@@ -506,8 +515,7 @@ void Game::RunWorld(bool& restart)
 	Player* player = new Player(&wData, 15, ROWS / 2, 2, Cyan);
 	allObjectList.push_back(player);
 
-	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
-	SpawnEnemy(COLS - 10, 2 + rand() % (ROWS - 3), SMALL);
+	SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), SMALL);
 
 	while (worldIsRun) {
 
@@ -549,13 +557,15 @@ void Game::RunWorld(bool& restart)
 
 				enemyList[i]->MoveObject();
 
-				if (tick % 20 == 0 && enemyList[i]->GetGunState() && enemyList[i]->GetEnemyType() != SMALL) {
+				if ((tick % 20 == 0) && (enemyList[i]->GetGunState()) && (enemyList[i]->GetEnemyType() != SMALL)) {
 					Shot(ENEMY, enemyList[i]); 
-					thread reloadGun([&] {
-						ReloadGun(enemyList[i]);
+					enemy = enemyList[i];
+					thread reloadEnGun([&] {
+						ReloadEnGun(enemy);
 						});
-					reloadGun.detach();
+					reloadEnGun.detach();
 				}
+				
 			}
 
 		}
