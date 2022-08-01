@@ -86,17 +86,17 @@ void Game::CreateWorld() {
 void Game::DrawEndInfo(bool& restart)
 {
 	if (win) {
-		SetPos(24, ROWS + 2);
+		SetPos(44, ROWS + 2);
 		cout << "CONGRATULATION! YOU WIN!";
 	}
 	else {
-		SetPos(30, ROWS + 2);
+		SetPos(50, ROWS + 2);
 		cout << "GAME OVER!";
 	}
 
-	SetPos(25, ROWS + 3);
+	SetPos(45, ROWS + 3);
 	cout << "PRESS ENTER TO RESTART";
-	SetPos(27, ROWS + 4);
+	SetPos(47, ROWS + 4);
 	cout << "PRESS ESC TO EXIT";
 
 	bool pressed = false;
@@ -118,13 +118,14 @@ void Game::DrawInfo(Player* player)
 {
 	int _speed = 1;
 
-	if (player->GetGunSpeed() == 2000) _speed = 1;
-	else if (player->GetGunSpeed() == 1750) _speed = 2;
-	else if (player->GetGunSpeed() == 1500) _speed = 3;
-	else if (player->GetGunSpeed() == 1250) _speed = 4;
-	else if (player->GetGunSpeed() == 1000) _speed = 5;
-	else if (player->GetGunSpeed() == 750) _speed = 6;
-	else if (player->GetGunSpeed() == 500) _speed = 7;
+	if (player->GetGunSpeed() == 1000) _speed = 1;
+	else if (player->GetGunSpeed() == 900) _speed = 2;
+	else if (player->GetGunSpeed() == 800) _speed = 3;
+	else if (player->GetGunSpeed() == 700) _speed = 4;
+	else if (player->GetGunSpeed() == 600) _speed = 5;
+	else if (player->GetGunSpeed() == 500) _speed = 6;
+	else if (player->GetGunSpeed() == 400) _speed = 7;
+	else if (player->GetGunSpeed() == 300) _speed = 8;
 
 	SetPos(5, ROWS + 2);
 	cout << "SCORE: " << score;
@@ -263,7 +264,7 @@ void Game::ReloadEnGun(Enemy* enemy)
 	enemy->SetGunState(true);
 }
 
-void Game::Shot(int owner, GameObject* gmObj)
+void Game::Shot(int owner, GameObject* gmObj, Player* player)
 {
 	if (gmObj->GetGunType() == SINGLESHOT) {
 		if (owner == PLAYER) {
@@ -272,9 +273,16 @@ void Game::Shot(int owner, GameObject* gmObj)
 			bulletList.push_back(bullet);
 			allObjectList.push_back(bullet);
 		}
-		else {
+		else if (owner == ENEMY) {
 			bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() / 2, 1, Red);
 			bullet->SetOwner(owner);
+			bulletList.push_back(bullet);
+			allObjectList.push_back(bullet);
+		}
+		else if (owner == ENEMYLAND) {
+			bullet = new Bullet(&wData, gmObj->GetX() - 1, gmObj->GetY() + gmObj->GetHeight() / 2, 1, BrYellow);
+			bullet->SetOwner(owner);
+			bullet->BulletPath(player->GetX(), player->GetY());
 			bulletList.push_back(bullet);
 			allObjectList.push_back(bullet);
 		}
@@ -438,6 +446,24 @@ void Game::Collision(Player* player) {
 			}
 			if (finded) break;
 		}
+		else if (bulletList[bullet]->GetOwner() == ENEMYLAND) {
+			for (int h = 0; h < player->GetHeight(); h++)
+			{
+				for (int w = 0; w < player->GetWidth(); w++)
+				{
+					if (bulletList[bullet]->GetX() == player->GetX() + w && bulletList[bullet]->GetY() == player->GetY() + h) {
+						player->Death(worldIsRun);
+
+						bulletList[bullet]->DeleteObject();
+
+						finded = true;
+						break;
+					}
+				}
+				if (finded) break;
+			}
+			if (finded) break;
+		}
 		finded = false;
 	}
 
@@ -461,8 +487,8 @@ void Game::Collision(Player* player) {
 							score += 150;
 
 							if (bonusList[bonus]->GetBonusType() == GUNSPEED) {
-								if (player->GetGunSpeed() > 500) {
-									player->SetGunSpeed(player->GetGunSpeed() - 250);
+								if (player->GetGunSpeed() > 300) {
+									player->SetGunSpeed(player->GetGunSpeed() - 100);
 
 									finded = true;
 									break;
@@ -517,6 +543,8 @@ void Game::RunWorld(bool& restart)
 
 	SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), SMALL);
 
+	SpawnEnemy(COLS - 10, ROWS - 3, LAND);
+
 	while (worldIsRun) {
 
 		if (pause) {
@@ -537,7 +565,7 @@ void Game::RunWorld(bool& restart)
 			player->MoveObject();
 
 			if (GetAsyncKeyState(VK_SPACE) && player->GetGunState()) {
-				Shot(PLAYER, player);
+				Shot(PLAYER, player, player);
 				thread reloadGun([&] {
 					ReloadGun(player);
 					});
@@ -552,18 +580,26 @@ void Game::RunWorld(bool& restart)
 			if (tick % enemyList[i]->GetSpeed() == 0) {
 
 				if (enemyList[i]->GetEnemyType() == SMALL) {
-					enemyList[i]->CheckKamikadzeArea(player);
+					enemyList[i]->CheckArea(player);
 				}
-
+				
 				enemyList[i]->MoveObject();
 
-				if ((tick % 20 == 0) && (enemyList[i]->GetGunState()) && (enemyList[i]->GetEnemyType() != SMALL)) {
-					Shot(ENEMY, enemyList[i]); 
+				if ((tick % 20 == 0) && (enemyList[i]->GetGunState()) && (enemyList[i]->GetEnemyType() != SMALL) && (enemyList[i]->GetEnemyType() != LAND)) {
+					Shot(ENEMY, enemyList[i], player); 
 					enemy = enemyList[i];
 					thread reloadEnGun([&] {
 						ReloadEnGun(enemy);
 						});
 					reloadEnGun.detach();
+				}
+				else if ((tick % 20 == 0) && (enemyList[i]->GetGunState()) && (enemyList[i]->GetEnemyType() == LAND)) {
+					Shot(ENEMYLAND, enemyList[i], player);
+					enemy = enemyList[i];
+					thread reloadLandGun([&] {
+						ReloadEnGun(enemy);
+						});
+					reloadLandGun.detach();
 				}
 				
 			}

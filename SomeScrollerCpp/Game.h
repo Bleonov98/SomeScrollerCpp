@@ -170,6 +170,9 @@ private:
         if (scrollX % 50 == 0 && scrollX > 0) {
             SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), SMALL);
         }
+        if (scrollX % 200 == 0 && scrollX > 0) {
+            SpawnEnemy(COLS - 10, ROWS - 3, LAND);
+        }
         if (scrollX + COLS == 1020) {
             SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), BOSS);
         }
@@ -204,7 +207,7 @@ protected:
 
     void ReloadEnGun(Enemy* enemy);
 
-    void Shot(int owner, GameObject* gmObj);
+    void Shot(int owner, GameObject* gmObj, Player* player);
 
     void Collision(Player* player);
 

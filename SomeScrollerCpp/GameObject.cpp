@@ -120,7 +120,7 @@ void Player::Death(bool &worldIsRun)
 		}
 
 		_gunType = SINGLESHOT;
-		_gunSpeed = 2000;
+		_gunSpeed = 1000;
 	}
 }
 
@@ -181,7 +181,10 @@ void Player::ChangeDir()
 
 void Bullet::DrawObject()
 {
-	wData->vBuf[_y][_x] = u'-' | (_color << 8);
+	if (_owner == ENEMYLAND) {
+		wData->vBuf[_y][_x] = u'@' | (_color << 8);
+	}
+	else wData->vBuf[_y][_x] = u'-' | (_color << 8);
 }
 
 void Bullet::EraseObject()
@@ -193,8 +196,23 @@ void Bullet::MoveObject()
 {
 	EraseObject();
 
-	if (_direction == RIGHT) _x++;
-	else if (_direction == LEFT) _x--;
+	if (!targetMove) {
+		if (_direction == RIGHT) _x++;
+		else if (_direction == LEFT) _x--;
+	}
+	else {
+		if (!path.empty()) {
+			SetX(path.back().first);
+			SetY(path.back().second);
+
+			path.pop_back();
+
+			if (path.empty()) {
+				DeleteObject();
+			}
+		}
+	}
+	
 
 	if (_x >= COLS - 2 || _x <= 3) {
 		DeleteObject();
@@ -219,6 +237,39 @@ int Bullet::GetGunSpeed()
 	return 0;
 }
 
+void Bullet::BulletPath(int x, int y)
+{
+	int X = _x, Y = _y;
+
+	int dx = abs(x - X);
+	int dy = abs(y - Y);
+
+	int error = dx - dy;
+
+	int dirX = (X < x) ? 1 : -1;
+	int dirY = (Y < y) ? 1 : -1;
+
+	while (X != x && Y != y)
+	{
+		const int error2 = error * 2;
+
+		if (error2 > -dy)
+		{
+			error -= dy;
+			X += dirX;
+		}
+		if (error2 < dx)
+		{
+			error += dx;
+			Y += dirY;
+		}
+
+		path.insert(path.begin(), make_pair(X, Y));
+	}
+
+	targetMove = true;
+}
+
 void Bullet::SetOwner(int owner)
 {
 	_owner = owner;
@@ -228,6 +279,9 @@ void Bullet::SetOwner(int owner)
 	}
 	else if (_owner == ENEMY) {
 		_direction = LEFT;
+	}
+	else if (_owner == ENEMYLAND) {
+		_direction == STOP;
 	}
 }
 
@@ -259,6 +313,15 @@ void Enemy::DrawObject()
 			}
 		}
 	}
+	else if (_type == LAND) {
+		for (int h = 0; h < REGULAR_HEIGHT; h++)
+		{
+			for (int w = 0; w < REGULAR_WIDTH - 1; w++)
+			{
+				wData->vBuf[_y + h][_x + w] = landEnemy[h][w] | (_color << 8);
+			}
+		}
+	}
 	else if (_type == BOSS) {
 		for (int h = 0; h < BOSS_HEIGHT; h++)
 		{
@@ -282,6 +345,15 @@ void Enemy::EraseObject()
 		}
 	}
 	else if (_type == REGULAR) {
+		for (int h = 0; h < REGULAR_HEIGHT; h++)
+		{
+			for (int w = 0; w < REGULAR_WIDTH - 1; w++)
+			{
+				wData->vBuf[_y + h][_x + w] = u' ';
+			}
+		}
+	}
+	else if (_type == LAND) {
 		for (int h = 0; h < REGULAR_HEIGHT; h++)
 		{
 			for (int w = 0; w < REGULAR_WIDTH - 1; w++)
@@ -346,6 +418,9 @@ void Enemy::Hit(int& score, bool& worldIsRun, bool& win)
 			worldIsRun = false;
 			win = true;
 		}
+		else if (_type == LAND) {
+			score += 750;
+		}
 
 	}
 	else _lifes--;
@@ -376,10 +451,17 @@ void Enemy::SetEnemyType(int type)
 		_width = BOSS_WIDTH - 1;
 		_height = BOSS_HEIGHT;
 		_speed = 12;
-		_gunSpeed = 650;
+		_gunSpeed = 300;
 		_y = ROWS / 2 - _height / 2;
 		_x = COLS - BOSS_WIDTH;
 		_lifes = 25;
+	}
+	else if (_type == LAND) {
+		_width = REGULAR_WIDTH - 1;
+		_height = REGULAR_HEIGHT;
+		_gunSpeed = 300;
+		_lifes = 1;
+		_gunType = SINGLESHOT;
 	}
 }
 
@@ -406,7 +488,7 @@ int Enemy::GetGunSpeed()
 
 
 
-void Enemy::CheckKamikadzeArea(Player* player)
+void Enemy::CheckArea(Player* player)
 {
 	if (targetFinded) return;
 

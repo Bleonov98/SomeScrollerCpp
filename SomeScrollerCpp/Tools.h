@@ -32,12 +32,14 @@ enum direction {
 
 enum bulletOwner {
 	PLAYER,
-	ENEMY
+	ENEMY,
+	ENEMYLAND
 };
 
 enum EnemyType {
 	SMALL,
 	REGULAR,
+	LAND,
 	BOSS
 };
 

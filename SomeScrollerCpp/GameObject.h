@@ -79,7 +79,7 @@ public:
 		_width = REGULAR_WIDTH - 1;
 		_height = REGULAR_HEIGHT;
 		_gunType = SINGLESHOT;
-		_gunSpeed = 2000;
+		_gunSpeed = 1000;
 	}
 
 	void DrawObject() override;
@@ -156,7 +156,7 @@ public:
 
 
 
-	void CheckKamikadzeArea(Player* player);
+	void CheckArea(Player* player);
 	
 
 private:
@@ -188,6 +188,12 @@ private:
 		u" @--------@---",
 		u"        --@   ",
 	};
+	char16_t landEnemy[REGULAR_HEIGHT][REGULAR_WIDTH]{
+		u" @@ ",
+		u" -- ",
+		u"----"
+	};
+
 
 	int _type = SMALL, _lifes = 1;
 
@@ -237,11 +243,15 @@ public:
 	int GetGunSpeed() override;
 
 
+	void BulletPath(int x, int y);
+
 private:
 
 	int _owner;
 
+	vector <pair<int, int>> path;
 
+	bool targetMove = false;
 };
 
 
