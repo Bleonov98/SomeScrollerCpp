@@ -127,15 +127,53 @@ void Game::DrawInfo(Player* player)
 	else if (player->GetGunSpeed() == 400) _speed = 7;
 	else if (player->GetGunSpeed() == 300) _speed = 8;
 
+	for (int i = 0; i < 4; i++)
+	{
+		SetPos(9 + i, ROWS + 5);
+		printf(CSI "0m");
+		cout << ' ';
+	}
+
+	if (player->GetHp() == 100) {
+		SetPos(5, ROWS + 5);
+		cout << "HP: ";
+		printf(CSI "42;32m");
+		cout << ' ';
+		cout << ' ';
+		cout << ' ';
+		cout << ' ';
+		printf(CSI "0m");
+	}
+	else if (player->GetHp() == 75) {
+		SetPos(5, ROWS + 5);
+		cout << "HP: ";
+		printf(CSI "43;32m");
+		cout << ' ';
+		cout << ' ';
+		cout << ' ';
+		printf(CSI "0m");
+	}
+	else if (player->GetHp() == 50) {
+		SetPos(5, ROWS + 5);
+		cout << "HP: ";
+		printf(CSI "43;32m");
+		cout << ' ';
+		cout << ' ';
+		printf(CSI "0m");
+	}
+	else if (player->GetHp() == 25) {
+		SetPos(5, ROWS + 5);
+		cout << "HP: ";
+		printf(CSI "41;32m");
+		cout << ' ';
+		printf(CSI "0m");
+	}
+
 	SetPos(5, ROWS + 2);
 	cout << "SCORE: " << score;
 	SetPos(5, ROWS + 3);
-	cout << "HP: " << "   ";
-	SetPos(5, ROWS + 3);
-	cout << "HP: " << player->GetHp() * 50;
-	SetPos(5, ROWS + 4);
 	cout << "LIFES: " << player->GetLifes();
-	SetPos(5, ROWS + 5);
+	SetPos(5, ROWS + 4);
 	cout << "SPEED: " << _speed;
 }
 
@@ -521,6 +559,81 @@ void Game::Collision(Player* player) {
 		}
 		finded = false;
 	}
+
+}
+
+void Game::WallCollision(Player* player) {
+	for (int bullet = 0; bullet < bulletList.size(); bullet++)
+	{
+		if (wData.grid[bulletList[bullet]->GetY()][bulletList[bullet]->GetX()] == -1) {
+			bulletList[bullet]->DeleteObject();
+			bulletList[bullet]->EraseObject();
+
+			break;
+		}
+	}
+	for (int enemy = 0; enemy < enemyList.size(); enemy++)
+	{
+		bool finded = false;
+		for (int eh = 0; eh < enemyList[enemy]->GetHeight() - 1; eh++)
+		{
+			for (int ew = 0; ew < enemyList[enemy]->GetWidth(); ew++)
+			{
+				if (wData.grid[enemyList[enemy]->GetY() + eh][enemyList[enemy]->GetX() + ew] == -1) {
+					enemyList[enemy]->DeleteObject();
+					enemyList[enemy]->EraseObject();
+
+					finded = true;
+
+					break;
+				}
+			}
+			if (finded) break;
+		}
+		finded = false;
+	}
+	for (int bonus = 0; bonus < bonusList.size(); bonus++)
+	{
+		bool finded = false;
+		for (int bh = 0; bh < bonusList[bonus]->GetHeight() - 1; bh++)
+		{
+			for (int bw = 0; bw < bonusList[bonus]->GetWidth(); bw++)
+			{
+				if (wData.grid[bonusList[bonus]->GetY() + bh][bonusList[bonus]->GetX() + bw] == -1) {
+					bonusList[bonus]->DeleteObject();
+					bonusList[bonus]->EraseObject();
+
+					finded = true;
+
+					break;
+				}
+			}
+			if (finded) break;
+		}
+		finded = false;
+	}
+
+	for (int ph = 0; ph < player->GetHeight() - 1; ph++)
+	{
+		bool finded = false;
+		for (int pw = 0; pw < player->GetWidth(); pw++)
+		{
+			if (wData.grid[player->GetY() + ph][player->GetX() + pw] == -1) {
+				player->EraseObject();
+
+				player->Death(worldIsRun);
+
+				player->SetX(15);
+				player->SetY(ROWS / 2);
+
+				finded = true;
+
+				break;
+			}
+		}
+		if (finded) break;
+	}
+
 }
 
 void Game::RunWorld(bool& restart)
@@ -617,6 +730,8 @@ void Game::RunWorld(bool& restart)
 		}
 
 		Collision(player);
+
+		WallCollision(player);
 
 		DrawToMem();
 

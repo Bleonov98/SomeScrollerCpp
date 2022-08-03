@@ -106,7 +106,7 @@ void Player::MoveObject()
 
 void Player::Death(bool &worldIsRun)
 {
-	_hp--;
+	_hp -= 25;
 
 	if (_hp == 0) {
 		Sleep(500);
@@ -116,7 +116,7 @@ void Player::Death(bool &worldIsRun)
 		}
 		else {
 			_lifes--;
-			_hp = 2;
+			_hp = 100;
 		}
 
 		_gunType = SINGLESHOT;

@@ -111,7 +111,7 @@ private:
 
 	void ChangeDir();
 
-	int _lifes = 3, _hp = 2, _gunSpeed = 2000;
+	int _lifes = 3, _hp = 100, _gunSpeed = 2000;
 
 	bool _reload = true;
 

@@ -10,10 +10,10 @@ private:
     char16_t prevBuf[ROWS][COLS];
     char coord[100];
 
-    unsigned char GameMap[ROWS][1025];
+    char GameMap[ROWS][1025];
 
-    unsigned char prevActiveAreaBuf[ROWS][COLS];
-    unsigned char activeAreaBuf[ROWS][COLS];
+    char prevActiveAreaBuf[ROWS][COLS];
+    char activeAreaBuf[ROWS][COLS];
 
     int scrollX = 0;
 
@@ -137,11 +137,24 @@ private:
     void ScrollWindow() {
 
         for (int i = 0; i < ROWS; i++)
+        {
+            for (int j = 0; j < COLS; j++)
+            {
+                wData.grid[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < ROWS; i++)
         {   
             int activeX = 0;
             for (int j = scrollX; j < scrollX + COLS; j++)
             {
                 activeAreaBuf[i][activeX] = GameMap[i][j];
+
+                if (activeAreaBuf[i][activeX] == '=') {
+                    wData.grid[i][activeX] = -1;
+                }
+
                 activeX++;
             }
         }
@@ -151,7 +164,7 @@ private:
             for (int j = 0; j < COLS; j++)
             {
                 if (i < 2 && i >= ROWS - 1) continue;
-                if (prevActiveAreaBuf[i][j] != activeAreaBuf[i][j] && (wData.vBuf[i][j] == 0 || wData.vBuf[i][j] == u' '))
+                if ((prevActiveAreaBuf[i][j] != activeAreaBuf[i][j]) && (wData.vBuf[i][j] == 0 || wData.vBuf[i][j] == u' '))
                 {
                     prevActiveAreaBuf[i][j] = activeAreaBuf[i][j];
 
@@ -210,6 +223,8 @@ protected:
     void Shot(int owner, GameObject* gmObj, Player* player);
 
     void Collision(Player* player);
+
+    void WallCollision(Player* player);
 
 public:
 
