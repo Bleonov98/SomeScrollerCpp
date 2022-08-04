@@ -50,4 +50,24 @@
   <ItemGroup>
     <Text Include="..\ScrlArea.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="..\Blaster.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="..\Explosion.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="..\Bonus.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="..\BOSS.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="..\Lose.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="..\Win.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

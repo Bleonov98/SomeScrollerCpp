@@ -62,6 +62,24 @@ LANGUAGE LANG_UKRAINIAN, SUBLANG_DEFAULT
 
 IDR_TEXT1               TEXT                    "C:\\Users\\Borys\\source\\repos\\SomeScrollerCpp\\ScrlArea.txt"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// WAVE
+//
+
+IDR_WAVE1               WAVE                    "..\\Blaster.wav"
+
+IDR_WAVE2               WAVE                    "..\\Explosion.wav"
+
+IDR_WAVE3               WAVE                    "..\\Bonus.wav"
+
+IDR_WAVE4               WAVE                    "..\\BOSS.wav"
+
+IDR_WAVE5               WAVE                    "..\\Lose.wav"
+
+IDR_WAVE6               WAVE                    "..\\Win.wav"
+
 #endif    // Ukrainian (Ukraine) resources
 /////////////////////////////////////////////////////////////////////////////
 

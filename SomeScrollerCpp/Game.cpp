@@ -80,16 +80,17 @@ void Game::CreateWorld() {
 	printf(CSI "?25l"); // hide cursor blinking
 
 	DrawArea();
-	//DrawLevel();
 }
 
 void Game::DrawEndInfo(bool& restart)
 {
 	if (win) {
+		PlaySound(MAKEINTRESOURCE(IDR_WAVE6), NULL, SND_RESOURCE | SND_ASYNC);
 		SetPos(44, ROWS + 2);
 		cout << "CONGRATULATION! YOU WIN!";
 	}
 	else {
+		PlaySound(MAKEINTRESOURCE(IDR_WAVE5), NULL, SND_RESOURCE | SND_ASYNC);
 		SetPos(50, ROWS + 2);
 		cout << "GAME OVER!";
 	}
@@ -299,7 +300,7 @@ void Game::ReloadEnGun(Enemy* enemy)
 
 	this_thread::sleep_for(milliseconds(enemy->GetGunSpeed()));
 
-	enemy->SetGunState(true);
+	enemy->SetGunState(true); 
 }
 
 void Game::Shot(int owner, GameObject* gmObj, Player* player)
@@ -360,6 +361,8 @@ void Game::Shot(int owner, GameObject* gmObj, Player* player)
 			}
 		}
 	}
+
+	PlaySound(MAKEINTRESOURCE(IDR_WAVE1), NULL, SND_RESOURCE | SND_ASYNC);
 }
 
 void Game::SpawnBonus(Enemy* enemy, int type)
@@ -523,6 +526,8 @@ void Game::Collision(Player* player) {
 
 							bonusList[bonus]->DeleteObject();
 							score += 150;
+
+							PlaySound(MAKEINTRESOURCE(IDR_WAVE3), NULL, SND_RESOURCE | SND_ASYNC);
 
 							if (bonusList[bonus]->GetBonusType() == GUNSPEED) {
 								if (player->GetGunSpeed() > 300) {

@@ -188,6 +188,7 @@ private:
         }
         if (scrollX + COLS == 1020) {
             SpawnEnemy(COLS - 10, 3 + rand() % (ROWS - 6), BOSS);
+            PlaySound(MAKEINTRESOURCE(IDR_WAVE3), NULL, SND_RESOURCE | SND_ASYNC);
         }
     }
 

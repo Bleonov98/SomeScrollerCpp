@@ -110,6 +110,9 @@ void Player::Death(bool &worldIsRun)
 
 	if (_hp == 0) {
 		Sleep(500);
+
+		PlaySound(MAKEINTRESOURCE(IDR_WAVE2), NULL, SND_RESOURCE | SND_ASYNC);
+
 		if (_lifes == 1) {
 			worldIsRun = false;
 			_hp = 0;
@@ -406,6 +409,8 @@ void Enemy::Hit(int& score, bool& worldIsRun, bool& win)
 	if (_lifes == 1) {
 		DeleteObject();
 		EraseObject();
+
+		PlaySound(MAKEINTRESOURCE(IDR_WAVE2), NULL, SND_RESOURCE | SND_ASYNC);
 
 		if (_type == SMALL) {
 			score += 250;
